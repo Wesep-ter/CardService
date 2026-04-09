@@ -5,5 +5,6 @@ import com.example.demo.dto.CardDto;
 public interface CardService {
 
     CardDto cardIssue(CardData cardData);
-    CardDto getCardById(Integer id);
+    CardDto getCardById(Long id);
+
 }

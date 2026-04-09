@@ -5,9 +5,7 @@ import com.example.demo.dto.CardDto;
 import com.example.demo.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/card")
@@ -21,4 +19,11 @@ public class CardController {
         CardDto body = cardService.cardIssue(cardData);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/getCardById/{id}")
+    public ResponseEntity<CardDto> getCardById(@PathVariable("id") Long id){
+        CardDto body = cardService.getCardById(id);
+        return ResponseEntity.ok(body);
+    }
+
 }

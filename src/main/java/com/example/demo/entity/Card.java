@@ -19,8 +19,11 @@ public class Card {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "card_id")
-    private Long cardId;
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "card_type")
     private String cardType;

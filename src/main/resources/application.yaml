@@ -1,3 +1,6 @@
 spring:
   application:
     name: demo
+bank:
+  bin: ${BIN}
+  secretKey: ${SECRET_KEY}
