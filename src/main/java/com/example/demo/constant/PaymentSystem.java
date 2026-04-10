@@ -1,5 +1,8 @@
-package com.example.demo.entity;
+package com.example.demo.constant;
 
+import lombok.Getter;
+
+@Getter
 public enum PaymentSystem {
     VISA("VISA",4),
     MASTERCARD("MASTERCARD",5),
@@ -13,11 +16,4 @@ public enum PaymentSystem {
         this.num = num;
     }
 
-    public int getNum() {
-        return num;
-    }
-
-    public String getName() {
-        return name;
-    }
 }

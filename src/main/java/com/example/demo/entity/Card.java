@@ -1,16 +1,13 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.demo.constant.CardStatus;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -49,5 +46,8 @@ public class Card {
     @Column(name = "is_active")
     private boolean isActive;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "card_status")
+    private CardStatus cardStatus;
 
 }

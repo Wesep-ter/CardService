@@ -6,5 +6,5 @@ public interface CardService {
 
     CardDto cardIssue(CardData cardData);
     CardDto getCardById(Long id);
-
+    CardDto changeCardStatus(CardData cardData, Long cardId);
 }

@@ -12,7 +12,7 @@ public class CardMapper {
                 .cardholder(card.getCardholder())
                 .cardNumber(card.getCardNumber())
                 .expirationDate(card.getExpirationDate())
-                .isActive(card.isActive())
+                .cardStatus(card.getCardStatus())
                 .build();
     }
 }

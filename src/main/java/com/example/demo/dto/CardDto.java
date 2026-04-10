@@ -1,4 +1,5 @@
 package com.example.demo.dto;
+import com.example.demo.constant.CardStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +22,6 @@ public class CardDto {
 
     private LocalDate expirationDate;
 
-    private boolean isActive;
+    private CardStatus cardStatus;
 
 }

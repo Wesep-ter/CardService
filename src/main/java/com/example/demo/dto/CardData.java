@@ -1,11 +1,11 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.PaymentSystem;
+import com.example.demo.constant.CardStatus;
+import com.example.demo.constant.Currency;
+import com.example.demo.constant.PaymentSystem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -21,6 +21,10 @@ public class CardData {
     private String cardType;
 
     private String cardholder;
+
+    private Currency currency;
+
+    private CardStatus cardStatus;
 
 
 }
