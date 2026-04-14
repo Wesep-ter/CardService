@@ -11,7 +11,7 @@ spring:
     hibernate:
       ddl-auto: update
 bank:
-  bin: ${BIN}
-  secretKey: ${SECRET_KEY}
+  bin: ${BIN:}
+  secretKey: ${SECRET_KEY:}
   svv:
-    secretCode: ${SECRET_CODE}
+    secretCode: ${SECRET_CODE:}
