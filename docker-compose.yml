@@ -1,0 +1,16 @@
+services:
+  postgresql:
+    image: postgres:17.4
+    container_name: cardDB
+    environment:
+      POSTGRES_DB: cardDB
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: var/lib/postgresql/data
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    ports:
+      - "5431:5432"
+
+volumes:
+  postgresql:

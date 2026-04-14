@@ -1,6 +1,15 @@
 spring:
   application:
-    name: demo
+    name: cardService
+  datasource:
+    url: jdbc:postgresql://localhost:5431/cardDB
+    password: Pass
+    username: Vadim
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
 bank:
   bin: ${BIN}
   secretKey: ${SECRET_KEY}
