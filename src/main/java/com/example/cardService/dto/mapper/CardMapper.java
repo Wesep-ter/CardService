@@ -5,8 +5,6 @@ import com.example.cardService.dto.CardData;
 import com.example.cardService.dto.CardDto;
 import com.example.cardService.entity.Card;
 
-import javax.management.StringValueExp;
-
 public class CardMapper {
 
     public static CardDto toDto(Card card){

@@ -51,10 +51,6 @@ public class CardServiceImpl implements CardService {
                 log.info("Карта не активна, и статус не может быть изменён.");
                 throw new InactiveCardException("Карта не активна, и статус не может быть изменён.");
             }
-            if (cardData.getCardStatus() == CardStatus.REISSUE){
-                log.info("Карта активна, но требует перевыпуска.");
-                throw new CardStatusException("Карта активна, но требует перевыпуска.");
-            }
             card.setCardStatus(cardData.getCardStatus());
             return CardMapper.toDto(card);
         }catch (EntityNotFoundException _){
@@ -67,15 +63,15 @@ public class CardServiceImpl implements CardService {
     @Transactional
     public CardDto cardReissue(Long cardId) {
         Card card = cardRepository.getReferenceById(cardId);
-        Card reissuedCard;
         if (!card.isActive()){
             log.info("Карта не активна, перевыпуск невозможен.");
             throw new InactiveCardException("Карта не активна, перевыпуск невозможен.");
         }
-        if (card.getCardStatus() == CardStatus.REISSUE){
-            reissuedCard = createCard(CardMapper.toData(card));
-            card.setActive(false);
-        }else throw new CardReissueException("Статус карты: " + card.getCardStatus() + ". А для перевыпуска карты требуется статус: REISSUE");
+        if (card.getCardStatus() != CardStatus.REISSUE){
+            throw new CardReissueException("Статус карты: " + card.getCardStatus() + ". А для перевыпуска карты требуется статус: REISSUE");
+        }
+        Card reissuedCard = createCard(CardMapper.toData(card));
+        card.setActive(false);
         return CardMapper.toDto(cardRepository.save(reissuedCard));
     }
 
@@ -92,10 +88,9 @@ public class CardServiceImpl implements CardService {
                 .currency(cardData.getCurrency())
                 .expirationDate(LocalDate.now().plusYears(10))
                 .isActive(true)
-                .cardStatus(cardData.getCardStatus())
+                .cardStatus(CardStatus.ACTIVE)
                 .build();
         card.setSvvSvc(passwordEncoder.encode(generateSvv(card, cardData.getPaymentSystem().getSvvSvsGenerator())));
         return card;
     }
-
 }
