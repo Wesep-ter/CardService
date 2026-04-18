@@ -22,4 +22,18 @@ public enum PaymentSystem {
         this.svvSvsGenerator = svvSvsGenerator;
     }
 
+    public static PaymentSystem getByNum(int num){
+        switch (num){
+            case 2 -> {
+                return MIR;
+            }
+            case 4 -> {
+                return VISA;
+            }
+            case 5 -> {
+                return MASTERCARD;
+            }
+            default -> throw new RuntimeException("Not found num.");
+        }
+    }
 }

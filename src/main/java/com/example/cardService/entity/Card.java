@@ -1,10 +1,9 @@
 package com.example.cardService.entity;
 
 import com.example.cardService.constant.CardStatus;
+import com.example.cardService.constant.Currency;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,7 +12,9 @@ import java.time.LocalDate;
 @Table(name = "cards")
 @Getter
 @Setter
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Card {
 
     @Id
@@ -42,8 +43,9 @@ public class Card {
     @Column(name = "balance")
     private BigDecimal balance;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "currency")
-    private String currency;
+    private Currency currency;
 
     @Column(name = "is_active")
     private boolean isActive;

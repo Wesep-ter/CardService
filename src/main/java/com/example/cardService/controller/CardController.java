@@ -25,5 +25,14 @@ public class CardController {
         CardDto body = cardService.getCardById(id);
         return ResponseEntity.ok(body);
     }
-
+    @PostMapping("/getCardReissueById/{id}")
+    public ResponseEntity<CardDto> getCardReissueById(@PathVariable("id")Long id){
+        CardDto body = cardService.cardReissue(id);
+        return ResponseEntity.ok(body);
+    }
+    @PostMapping("/changeCardStatus/{id}")
+    public ResponseEntity<CardDto> changeCardStatus(CardData cardData, @PathVariable("id") Long id){
+        CardDto body = cardService.changeCardStatus(cardData, id);
+        return ResponseEntity.ok(body);
+    }
 }

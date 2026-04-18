@@ -1,11 +1,12 @@
 package com.example.cardService.service;
 
+import com.example.cardService.constant.CardStatus;
 import com.example.cardService.dto.CardData;
 import com.example.cardService.dto.CardDto;
 import com.example.cardService.dto.mapper.CardMapper;
 import com.example.cardService.entity.Card;
+import com.example.cardService.exception.*;
 import com.example.cardService.util.*;
-import com.example.cardService.exception.CardNotFoundException;
 import com.example.cardService.repository.CardRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,17 +32,7 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public CardDto cardIssue(CardData cardData) {
-        Card card = new Card();
-        card.setCardNumber(numberCardGenerator.generateNumberCard(cardData.getPaymentSystem(),cardData.getUserId()));
-        card.setCardholder(cardData.getCardholder());
-        card.setCardType(cardData.getCardType());
-        card.setBalance(BigDecimal.ZERO);
-        card.setUserId(cardData.getUserId());
-        card.setCurrency(cardData.getCurrency().name());
-        card.setExpirationDate(LocalDate.now().plusYears(10));
-        card.setSvvSvc(passwordEncoder.encode(generateSvv(card, cardData.getPaymentSystem().getSvvSvsGenerator())));
-        card.setActive(true);
-        card.setCardStatus(cardData.getCardStatus());
+        Card card = createCard(cardData);
         return CardMapper.toDto(cardRepository.save(card));
     }
 
@@ -58,18 +49,53 @@ public class CardServiceImpl implements CardService {
             Card card = cardRepository.getReferenceById(cardId);
             if (!card.isActive()){
                 log.info("Карта не активна, и статус не может быть изменён.");
-                throw new RuntimeException();
+                throw new InactiveCardException("Карта не активна, и статус не может быть изменён.");
+            }
+            if (cardData.getCardStatus() == CardStatus.REISSUE){
+                log.info("Карта активна, но требует перевыпуска.");
+                throw new CardStatusException("Карта активна, но требует перевыпуска.");
             }
             card.setCardStatus(cardData.getCardStatus());
             return CardMapper.toDto(card);
         }catch (EntityNotFoundException _){
             log.info("Id карты не найдено.");
-            throw new RuntimeException();
+            throw new CardIdException("Id карты не найдено.");
         }
+    }
+
+    @Override
+    @Transactional
+    public CardDto cardReissue(Long cardId) {
+        Card card = cardRepository.getReferenceById(cardId);
+        Card reissuedCard;
+        if (!card.isActive()){
+            log.info("Карта не активна, перевыпуск невозможен.");
+            throw new InactiveCardException("Карта не активна, перевыпуск невозможен.");
+        }
+        if (card.getCardStatus() == CardStatus.REISSUE){
+            reissuedCard = createCard(CardMapper.toData(card));
+            card.setActive(false);
+        }else throw new CardReissueException("Статус карты: " + card.getCardStatus() + ". А для перевыпуска карты требуется статус: REISSUE");
+        return CardMapper.toDto(cardRepository.save(reissuedCard));
     }
 
     private String generateSvv(Card card, SvvSvsGenerator svvSvsGenerator){
         return svvSvsGenerator.generateSvv(card.getCardNumber(),card.getExpirationDate().toString(),secretCode);
+    }
+
+    private Card createCard(CardData cardData) {
+        Card card = Card.builder()
+                .cardNumber(numberCardGenerator.generateNumberCard(cardData.getPaymentSystem(),cardData.getUserId()))
+                .cardholder(cardData.getCardholder())
+                .balance(BigDecimal.ZERO)
+                .userId(cardData.getUserId())
+                .currency(cardData.getCurrency())
+                .expirationDate(LocalDate.now().plusYears(10))
+                .isActive(true)
+                .cardStatus(cardData.getCardStatus())
+                .build();
+        card.setSvvSvc(passwordEncoder.encode(generateSvv(card, cardData.getPaymentSystem().getSvvSvsGenerator())));
+        return card;
     }
 
 }
