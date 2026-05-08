@@ -1,0 +1,97 @@
+package com.example.cardservice.service;
+
+import com.example.cardservice.constant.CardStatus;
+import com.example.cardservice.dto.CardData;
+import com.example.cardservice.dto.CardDto;
+import com.example.cardservice.dto.mapper.CardMapper;
+import com.example.cardservice.entity.Card;
+import com.example.cardservice.exception.*;
+import com.example.cardservice.util.*;
+import com.example.cardservice.repository.CardRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class CardServiceImpl implements CardService {
+
+    private final CardRepository cardRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final NumberCardGenerator numberCardGenerator;
+    @Value("${bank.svv.secretCode}")
+    private String secretCode;
+
+    @Override
+    @Transactional
+    public CardDto cardIssue(CardData cardData) {
+        Card card = createCard(cardData);
+        return CardMapper.toDto(cardRepository.save(card));
+    }
+
+    @Override
+    public CardDto getCardById(Long id) {
+        Card card = cardRepository.findById(id).orElseThrow(() -> new CardNotFoundException("Такой карты нет в базе данных."));
+        return CardMapper.toDto(card);
+    }
+
+    @Override
+    @Transactional
+    public CardDto changeCardStatus(CardData cardData, Long cardId) {
+        try {
+            Card card = cardRepository.getReferenceById(cardId);
+            if (!card.isActive()){
+                log.info("Карта не активна, и статус не может быть изменён.");
+                throw new InactiveCardException("Карта не активна, и статус не может быть изменён.");
+            }
+            card.setCardStatus(cardData.getCardStatus());
+            return CardMapper.toDto(card);
+        }catch (EntityNotFoundException _){
+            log.info("Id карты не найдено.");
+            throw new CardIdException("Id карты не найдено.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public CardDto cardReissue(Long cardId) {
+        Card card = cardRepository.getReferenceById(cardId);
+        if (!card.isActive()){
+            log.info("Карта не активна, перевыпуск невозможен.");
+            throw new InactiveCardException("Карта не активна, перевыпуск невозможен.");
+        }
+        if (card.getCardStatus() != CardStatus.REISSUE){
+            throw new CardReissueException("Статус карты: " + card.getCardStatus() + ". А для перевыпуска карты требуется статус: REISSUE");
+        }
+        Card reissuedCard = createCard(CardMapper.toData(card));
+        card.setActive(false);
+        return CardMapper.toDto(cardRepository.save(reissuedCard));
+    }
+
+    private String generateSvv(Card card, SvvSvsGenerator svvSvsGenerator){
+        return svvSvsGenerator.generateSvv(card.getCardNumber(),card.getExpirationDate().toString(),secretCode);
+    }
+
+    private Card createCard(CardData cardData) {
+        Card card = Card.builder()
+                .cardNumber(numberCardGenerator.generateNumberCard(cardData.getPaymentSystem(),cardData.getUserId()))
+                .cardholder(cardData.getCardholder())
+                .balance(BigDecimal.ZERO)
+                .userId(cardData.getUserId())
+                .currency(cardData.getCurrency())
+                .expirationDate(LocalDate.now().plusYears(10))
+                .isActive(true)
+                .cardStatus(CardStatus.ACTIVE)
+                .accountId(cardData.getAccountId())
+                .build();
+        card.setSvvSvc(passwordEncoder.encode(generateSvv(card, cardData.getPaymentSystem().getSvvSvsGenerator())));
+        return card;
+    }
+}

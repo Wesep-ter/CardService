@@ -15,3 +15,5 @@ bank:
   secretKey: ${SECRET_KEY:}
   svv:
     secretCode: ${SECRET_CODE:}
+server:
+  port: 7081
