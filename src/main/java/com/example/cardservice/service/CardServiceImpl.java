@@ -1,6 +1,7 @@
 package com.example.cardservice.service;
 
 import com.example.cardservice.constant.CardStatus;
+import com.example.cardservice.dto.AccountDto;
 import com.example.cardservice.dto.CardData;
 import com.example.cardservice.dto.CardDto;
 import com.example.cardservice.dto.mapper.CardMapper;
@@ -26,6 +27,8 @@ public class CardServiceImpl implements CardService {
     private final CardRepository cardRepository;
     private final PasswordEncoder passwordEncoder;
     private final NumberCardGenerator numberCardGenerator;
+    private final AccountClient accountClient;
+
     @Value("${bank.svv.secretCode}")
     private String secretCode;
 
@@ -38,8 +41,17 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public CardDto getCardById(Long id) {
-        Card card = cardRepository.findById(id).orElseThrow(() -> new CardNotFoundException("Такой карты нет в базе данных."));
-        return CardMapper.toDto(card);
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new CardNotFoundException("Карта не найдена"));
+
+        CardDto cardDto = CardMapper.toDto(card);
+        try {
+            AccountDto accountDto = accountClient.getAccountById(card.getAccountId());
+            cardDto.setBalance(accountDto.getBalance());
+        } catch (Exception e) {
+            cardDto.setBalance(BigDecimal.ZERO);
+        }
+        return cardDto;
     }
 
     @Override
@@ -83,7 +95,6 @@ public class CardServiceImpl implements CardService {
         Card card = Card.builder()
                 .cardNumber(numberCardGenerator.generateNumberCard(cardData.getPaymentSystem(),cardData.getUserId()))
                 .cardholder(cardData.getCardholder())
-                .balance(BigDecimal.ZERO)
                 .userId(cardData.getUserId())
                 .currency(cardData.getCurrency())
                 .expirationDate(LocalDate.now().plusYears(10))

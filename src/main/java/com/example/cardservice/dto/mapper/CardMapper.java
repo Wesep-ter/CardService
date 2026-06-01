@@ -10,6 +10,7 @@ public class CardMapper {
     public static CardDto toDto(Card card){
         return CardDto.builder()
                 .id(card.getId())
+                .userId(card.getUserId())
                 .cardType(card.getCardType())
                 .cardholder(card.getCardholder())
                 .cardNumber(card.getCardNumber())

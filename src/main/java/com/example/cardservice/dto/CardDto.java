@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -13,6 +15,8 @@ import java.time.LocalDate;
 public class CardDto {
 
     private Long id;
+
+    private Long userId;
 
     private Long accountId;
 
@@ -25,4 +29,7 @@ public class CardDto {
     private LocalDate expirationDate;
 
     private CardStatus cardStatus;
+
+    private BigDecimal balance;
 }
+

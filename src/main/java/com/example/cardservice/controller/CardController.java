@@ -30,7 +30,7 @@ public class CardController {
         CardDto body = cardService.cardReissue(id);
         return ResponseEntity.ok(body);
     }
-    @PostMapping("/changeStatus/{id}")
+    @PutMapping("/changeStatus/{id}")
     public ResponseEntity<CardDto> changeStatus(@RequestBody CardData cardData, @PathVariable("id") Long id){
         CardDto body = cardService.changeCardStatus(cardData, id);
         return ResponseEntity.ok(body);

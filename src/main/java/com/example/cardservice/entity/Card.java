@@ -5,7 +5,6 @@ import com.example.cardservice.constant.Currency;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -42,9 +41,6 @@ public class Card {
 
     @Column(name = "svv_svc")
     private String svvSvc;
-
-    @Column(name = "balance")
-    private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "currency")
