@@ -47,6 +47,13 @@ public class CardServiceImpl implements CardService {
         CardDto cardDto = CardMapper.toDto(card);
         try {
             AccountDto accountDto = accountClient.getAccountById(card.getAccountId());
+
+            if (!accountDto.getUserId().equals(card.getUserId())) {
+                log.info("Несоответствие владельца: карта userId={}, счёт userId={}",
+                        card.getUserId(), accountDto.getUserId());
+                throw new AccountAndCardIdException("Несоответствие владельца карты и счёта");
+            }
+
             cardDto.setBalance(accountDto.getBalance());
         } catch (Exception e) {
             cardDto.setBalance(BigDecimal.ZERO);
@@ -64,7 +71,7 @@ public class CardServiceImpl implements CardService {
                 throw new InactiveCardException("Карта не активна, и статус не может быть изменён.");
             }
             card.setCardStatus(cardData.getCardStatus());
-            return CardMapper.toDto(card);
+            return CardMapper.toDto(cardRepository.save(card));
         }catch (EntityNotFoundException _){
             log.info("Id карты не найдено.");
             throw new CardIdException("Id карты не найдено.");

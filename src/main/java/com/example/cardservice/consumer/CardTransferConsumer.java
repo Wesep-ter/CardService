@@ -20,7 +20,7 @@ public class CardTransferConsumer {
     private final CardRepository cardRepository;
     private final CardTransferProducer cardTransferProducer;
 
-    @KafkaListener
+    @KafkaListener(topics = "card-transfer-requests", groupId = "card-service-group")
     public void handleCardTransferRequest(CardTransferEvent event){
         log.info("Получен запрос на проверку карт для транзакции: {}", event.getTransactionId());
         String topicName = "card-transfer-requests";
